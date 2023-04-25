@@ -1,15 +1,20 @@
 import numpy as np
 import cv2
 import requests
-import os
-import face_recognition
+
 import datetime
 
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import QThread, QTimer, QRunnable
+from PyQt5 import QtGui
 
 class Camera:
-    def __init__(self, cam_num):
+    def __init__(self, cam_num, formulario):
         self.cap = cv2.VideoCapture(cam_num)
+        self.formulario = formulario
         self.last_frame = None
+        self.update_timer = QTimer()
+        self.update_timer.timeout.connect(self.update_movie)
 
     def get_frame(self):
         ret, self.last_frame = self.cap.read()
@@ -29,12 +34,34 @@ class Camera:
 
     def TratarFrame(self):
         # Reduz o tamanho do Frame para aprimorar performance
-        frame_formatado = cv2.resize(self.get_frame(), (0, 0), fx=0.25, fy=0.25)
+        frame_formatado = cv2.resize(self.get_frame(), (0, 0), fx=0.5, fy=0.5)
         frame_formatado = frame_formatado[
             :, :, :: 1
         ]  # Altera o padrão de cores para rgb
         return frame_formatado
+    
+    def update_movie(self):
+        frame = self.TratarFrame()
+        larg = 480
+        alt = int(frame.shape[0]/frame.shape[1]*larg)
+        frame = cv2.resize(frame, (larg, alt), interpolation = cv2.INTER_AREA)
+        height, width, channel = frame.shape
+        bytesPerLine = 3 * width
+        qImg = QtGui.QImage(frame.data, width, height, bytesPerLine, QtGui.QImage.Format_RGB888).rgbSwapped()
+        self.formulario.camera.setPixmap(QtGui.QPixmap(qImg))
 
+    def start_movie(self):
+        self.movie_thread = MovieThread(self)
+        self.movie_thread.start()
+        self.update_timer.start(30)
+
+class MovieThread(QThread):
+    def __init__(self, camera):
+        super().__init__()
+        self.camera = camera
+
+    def run(self):
+        self.camera.acquire_movie(200)
 
 class Aluno:
     def __init__(self, dict, dados):
@@ -80,7 +107,8 @@ class Aluno:
 
 class DadosGerais:
     def __init__(self):
-        self.api = "https://web-production-9f8c8.up.railway.app/reconhecimento"
+        # self.api = "https://web-production-9f8c8.up.railway.app/reconhecimento"
+        self.api = "http://localhost:8080/reconhecimento"
         self.requisicao = requests.get(self.api).json()
         self.nomes = []
         self.matriculas = []
