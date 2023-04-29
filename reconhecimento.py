@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QThread, QTimer, QRunnable, QThreadPool
 from PyQt5 import QtGui
 
-import threading
 
 from model import Aluno
 from model import DadosGerais
@@ -20,11 +19,13 @@ import requests
 class Reconhecimento:
     def __init__(self, camera, formulario):
         self.camera = camera
+        self.ignorado = []
         self.dados = DadosGerais()
         self.registro = Registro(self.dados)
         self.formulario = formulario
         self.timer = QTimer()
         self.timer.timeout.connect(self.executar)
+        self.api = "http://localhost:8080/reconhecimento"
 
 
     # inicia a câmera
@@ -75,15 +76,21 @@ class Reconhecimento:
         else:
             pass
 
-
-
     def main(self):
         # Se houver necessidade de cadastro, a rotina é acionada
         if self.registro.verificaRegistro():
             # Extrai a face de cada aluno que deve ser atualizado e faz seu armazenamento
             for aluno in self.registro.aSeremRegistrados:
-                face = Faces(aluno, self.dados)
-                face.armazenarFace()
+                try:
+                    face = Faces(aluno, self.dados)
+                    print(f'{aluno.nome} sendo registrado')
+                    face.armazenarFace()
+                except:
+                    requests.patch("%s/id/%s" % (self.api, aluno.matricula),{"registered": True})
+                    self.ignorado.append(aluno)
+
+        for c in self.ignorado:
+            print(c.nome)
         self.dados.ImportarAlunos()
 
         # Se houver nescessidade de atualização, a rotina é acionada
@@ -92,6 +99,9 @@ class Reconhecimento:
                 face = Faces(aluno, self.dados)
                 face.atualizarFace()
     
+        # remover aluno
+        # self.registro.verificaExclusao()
+        
 class ReconhecimentoThread(QRunnable):
     def __init__(self, reconhecimento) -> None:
         super().__init__()
@@ -99,6 +109,4 @@ class ReconhecimentoThread(QRunnable):
         self.reconhecimento = reconhecimento
 
     def run(self) -> None:
-        
         self.reconhecimento.start_recognition()
-        # time.sleep(500)    

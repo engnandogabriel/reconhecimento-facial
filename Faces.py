@@ -15,13 +15,15 @@ class Faces:
         self.face = self.ExtrairFace()
         self.dados = Dados
         self.faces_armazenadas = "data/backup/faces.npz"
-        self.api = "https://web-production-9f8c8.up.railway.app/reconhecimento"
+        # self.api = "https://web-production-9f8c8.up.railway.app/reconhecimento"
+        self.api = "http://localhost:8080/reconhecimento"
 
     def ExtrairFace(self):
         imagem = self.importaImagem()  # Armazena o caminho da foto na variável
         aluno = fr.load_image_file(imagem)  # Carrega a imagem para o código
         face = fr.face_encodings(aluno)[0]  # Extrai, de fato, a face da imagem carregada
         return face
+            
 
     def importaImagem(self):
         caminhoDaImagem = "data/imagens/%s.jpg" % self.aluno.matricula
@@ -43,7 +45,7 @@ class Faces:
         for item in backup.files:
             if (backup[item] != []):  # Verifica se o objeto não é vazio. Essa verificação é feita para o caso do try..except acima.
                 faces.append(backup[item])
-
+        
         faces.append(self.face)  # Adiciona-se a face a ser armazenada (que foi passada como parâmetro) na lista de faces
         np.savez(self.faces_armazenadas, *faces)  # Salva a lista de faces (atualizada com a nova) no arquivo .npz
 
@@ -77,6 +79,9 @@ class Faces:
         tobase64 = base64.b64encode(self.face)
 
         requests.patch("{}/atualized/id/{}".format(self.api, self.aluno.matricula),{"atualized": False, "caracteres": tobase64})
+
+    def teste(self):
+        return self.faces_armazenadas
 
     def verificaPresenca(self):
         print(self.aluno.get_dados)

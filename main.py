@@ -12,6 +12,7 @@ camera = Camera(0, formulario)
 
 reconhecimento_facial = Reconhecimento(camera, formulario)
 
+# reconhecimento_facial.main()
 
 #acoes da interface
 formulario.atualizar.clicked.connect(reconhecimento_facial.main)
