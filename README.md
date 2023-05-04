@@ -17,6 +17,8 @@ O software ultiliza o poder do Machine Learning para capturar os principais fato
 testa e o queixo, o formato da maçã do rosto e o contorno dos lábios, das orelhas e do queixo. O objetivo é identificar os pontos de referência faciais principais que 
 distinguem seu rosto e converter em dados para ser comparados com rostos armazenado em um DataBase.
 
+Por enquanto o projeto não pode ser acessado por conta da API que esta privada, mas em breve ser disponibilazdo para a comunidade.
+
 # 🎁Layout
 ## ⚙️Tela inicial
 
