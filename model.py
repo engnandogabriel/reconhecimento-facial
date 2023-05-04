@@ -1,10 +1,9 @@
 import numpy as np
 import cv2
+import face_recognition as fr
 import requests
 
 import datetime
-
-from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QThread, QTimer, QRunnable
 from PyQt5 import QtGui
 
@@ -35,15 +34,32 @@ class Camera:
     def TratarFrame(self):
         # Reduz o tamanho do Frame para aprimorar performance
         frame_formatado = cv2.resize(self.get_frame(), (0, 0), fx=0.5, fy=0.5)
-        frame_formatado = frame_formatado[
-            :, :, :: 1
-        ]  # Altera o padrão de cores para rgb
+        frame_formatado = frame_formatado[:, :, :: 1]
         return frame_formatado
     
     def update_movie(self):
         frame = self.TratarFrame()
-        larg = 480
+        larg = 720
         alt = int(frame.shape[0]/frame.shape[1]*larg)
+        localizacoesFaces = fr.face_locations(frame)
+
+        # for (cima, direita, baixo, esquerda) in localizacoesFaces:
+        #         cv2.rectangle((frame), (esquerda, cima), (direita, baixo), (0, 0, 255), 1,)
+
+        face_cascade = cv2.CascadeClassifier('deteccao/haarcascade_frontalface_default.xml')
+        eye_cascade = cv2.CascadeClassifier('deteccao/haarcascade_eye.xml')
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+        for (x,y,w,h) in faces:
+            cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),1)
+            roi_gray = gray[y:y+h, x:x+w]
+            roi_color = frame[y:y+h, x:x+w]
+            eyes = eye_cascade.detectMultiScale(roi_gray)
+            for (ex,ey,ew,eh) in eyes:
+                cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(255,0,0),1)
+
         frame = cv2.resize(frame, (larg, alt), interpolation = cv2.INTER_AREA)
         height, width, channel = frame.shape
         bytesPerLine = 3 * width
@@ -68,6 +84,7 @@ class Aluno:
         self.id = dict["_id"]
         self.nome = dict["nome"]
         self.matricula = dict["matricula"]
+        self.curso = dict["curso"]
         self.foto = dict["foto"]
         self.frequencia = dict["frequencia"]
         self.atualizedAt = dict["atualizedAt"].split("T")[0]
@@ -113,9 +130,10 @@ class DadosGerais:
         self.nomes = []
         self.matriculas = []
 
+
     def get_data(self):
-        currentDate = datetime.date.today()  # recupera o dia atual
-        currentDate = currentDate.strftime("%Y-%m-%d")  # converter para string
+        currentDate = datetime.date.today() 
+        currentDate = currentDate.strftime("%Y-%m-%d")
         return currentDate
 
     def get_data_complete(self):
@@ -128,9 +146,7 @@ class DadosGerais:
             texto = arquivo.read()
             arquivo.close()
 
-            alunos = texto.split(
-                "/"
-            )  # Divide o arquivo em uma lista com a seguinte estrutura: [matricula1:aluno1, matricula2:aluno2,..., matriculaN:alunoN, NULL]
+            alunos = texto.split("/")  # Divide o arquivo em uma lista com a seguinte estrutura: [matricula1:aluno1, matricula2:aluno2,..., matriculaN:alunoN, NULL]
             alunos.pop()  # Remove o valor nulo da última posição da lista
             # Separa cada item da lista alunos em dois: matricula, nome. Em seguida, armazena na variável nomes apenas o nome do aluno
             for aluno in alunos:
@@ -148,3 +164,5 @@ class DadosGerais:
 
     def get_dados(self):
         return self.requisicao
+ 
+ 

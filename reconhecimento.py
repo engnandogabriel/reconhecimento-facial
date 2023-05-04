@@ -1,5 +1,5 @@
 from multiprocessing.pool import ThreadPool
-import time
+import cv2
 import numpy as np
 import face_recognition as fr
 from PyQt5.QtWidgets import QMessageBox
@@ -19,12 +19,17 @@ import requests
 class Reconhecimento:
     def __init__(self, camera, formulario):
         self.camera = camera
-        self.ignorado = []
         self.dados = DadosGerais()
+        self.nome = None
+        self.matricula = None
+        self.curso = None
+        self.hora = None
+        self.registrado = None
+        self.localizacoesFaces = None
         self.registro = Registro(self.dados)
         self.formulario = formulario
         self.timer = QTimer()
-        self.timer.timeout.connect(self.executar)
+        self.timer.timeout.connect(self.threaFuncion)
         self.api = "http://localhost:8080/reconhecimento"
 
 
@@ -47,37 +52,53 @@ class Reconhecimento:
 
                 if True in correspodem:
                     primeiraCorresponcia = correspodem.index(True)
-                    print(primeiraCorresponcia)
-                    nome = alunos[primeiraCorresponcia].nome
-                    print(nome)
-                    matricula = alunos[primeiraCorresponcia].matricula
-                    self.registro.confirmaPresenca(primeiraCorresponcia,matricula)
+                    self.nome = alunos[primeiraCorresponcia].nome    
+                    self.matricula = alunos[primeiraCorresponcia].matricula
+                    self.curso = alunos[primeiraCorresponcia].curso
+                    try:
+                        hora = alunos[primeiraCorresponcia].frequencia[-1]
+                        self.hora = hora.split('T')[1]
+                    except:
+                        hora = '00h00'
+                    print(hora)
+                    self.registrado = 'Registrado'
+
+                    self.registro.confirmaPresenca(primeiraCorresponcia,self.matricula)
+                    if self.nome and self.matricula and self.curso and self.hora:
+                        self.exebirDadosInterfcae()
 
                 nomeFaces.append(nome)
             return
-                
+    
+    def exebirDadosInterfcae(self):
+        self.formulario.recebe_nome.setText(self.nome)
+        self.formulario.recebe_matricula.setText(self.matricula)
+        self.formulario.recebe_curso.setText(self.curso)
+        self.formulario.recebe_status.setText(self.registrado)
+        self.formulario.recebe_horario.setText(self.hora)
+
+
     def reconhecimento(self):
-        self.timer.start(2000)
+        self.camera.start_movie()
+        self.timer.start(2500)
 
-    def executar(self):
-        # camThread = self.camera.start_movie()
-        # pool.start(camThread)
-        # self.camera.start_movie()
-
-        localizacoesFaces = fr.face_locations(self.camera.TratarFrame())
-        print(localizacoesFaces)
-
-        if localizacoesFaces:
-            print('tem pessoa')
+    def threaFuncion(self):
+        self.localizacoesFaces = fr.face_locations(self.camera.TratarFrame())
+        if self.localizacoesFaces:
             pool = QThreadPool.globalInstance()
             recoThread = ReconhecimentoThread(self)
             pool.start(recoThread)
-            print("teste")
         else:
-            pass
+            self.nome = None
+            self.matricula = None
+            self.curso = None
+            self.hora = None
+            self.registrado = None
+            self.exebirDadosInterfcae()
 
+   
     def main(self):
-        # Se houver necessidade de cadastro, a rotina é acionada
+    # Se houver necessidade de cadastro, a rotina é acionada
         if self.registro.verificaRegistro():
             # Extrai a face de cada aluno que deve ser atualizado e faz seu armazenamento
             for aluno in self.registro.aSeremRegistrados:
@@ -86,26 +107,21 @@ class Reconhecimento:
                     print(f'{aluno.nome} sendo registrado')
                     face.armazenarFace()
                 except:
+                    print(f'Aluno {aluno.nome} não pode ser registrado')
                     requests.patch("%s/id/%s" % (self.api, aluno.matricula),{"registered": True})
-                    self.ignorado.append(aluno)
+        
 
-        for c in self.ignorado:
-            print(c.nome)
+
         self.dados.ImportarAlunos()
-
         # Se houver nescessidade de atualização, a rotina é acionada
         if self.registro.verificaAtualizacao():
             for aluno in self.registro.aSeremAtualizados:
                 face = Faces(aluno, self.dados)
                 face.atualizarFace()
-    
-        # remover aluno
-        # self.registro.verificaExclusao()
         
 class ReconhecimentoThread(QRunnable):
     def __init__(self, reconhecimento) -> None:
         super().__init__()
-        print("construtor")
         self.reconhecimento = reconhecimento
 
     def run(self) -> None:

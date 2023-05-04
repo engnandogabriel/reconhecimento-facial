@@ -205,7 +205,7 @@ font-size: 15px;</string>
       <number>2</number>
      </property>
     </widget>
-    <widget class="QLabel" name="recebe_nome">
+    <widget class="QLabel" name="recebe_nome" >
      <property name="geometry">
       <rect>
        <x>84</x>
@@ -227,7 +227,7 @@ font-size: 15px;</string>
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true">background-color: rgb(255, 255, 255); text-transform:uppercase; font: 75 11pt &quot;Waree&quot;</string>
      </property>
      <property name="text">
       <string/>
@@ -288,7 +288,7 @@ font-size: 15px;</string>
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true">background-color: rgb(255, 255, 255); text-transform:uppercase; font: 75 11pt &quot;Waree&quot;</string>
      </property>
      <property name="text">
       <string/>
@@ -349,7 +349,7 @@ font-size: 15px;</string>
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true">background-color: rgb(255, 255, 255); text-transform:uppercase; font: 75 11pt &quot;Waree&quot;</string>
      </property>
      <property name="text">
       <string/>
@@ -377,7 +377,7 @@ font-size: 15px;</string>
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true">background-color: rgb(255, 255, 255);margin-left:5px; text-transform:uppercase; font: 75 11pt &quot;Waree&quot; </string>
      </property>
      <property name="text">
       <string/>
@@ -438,7 +438,7 @@ font-size: 15px;</string>
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true">background-color: rgb(255, 255, 255);text-transform:uppercase; font: 75 11pt &quot;Waree&quot;</string>
      </property>
      <property name="text">
       <string/>
