@@ -9,8 +9,10 @@ Software para controle de acesso ao discentes do Instituto Federal do Maranhão 
 
 Essa é uma aplicação desktop construída em paralelo a um [sistema web fullstack](https://github.com/engnandogabriel/frontend-fapema) para gerenciar os dados dos alunos.
 
-A aplicação consiste em sistema de reconhecimento facila que fará o controle de acessos dos estudantes que recebem bolsas estudantis ou qualquer outro auxílio finaceiro, 
-a fim de que a instituição possa ter um controle e tomar as medidas nescessárias garantir que os alunos beneficados com os recursos estudanis estejam frequentando as aulas.
+A aplicação consiste em sistema de reconhecimento facila que fará o controle de acessos dos estudantes que recebem bolsas estudantis ou qualquer outro
+auxílio financeiro, a fim de que a instituição possa ter um controle e tomar as medidas necessárias para garantir
+que os alunos beneficiados com os recursos estudantis estejam frequentando as aulas.
+
 
 O sistema foi desenvolvido em python usando diversas bibliotecas, entre elas, OpenCv para o uso de webcam e cameras de terceiros e Face-Recognition para o reconhecimento facial.
 O software ultiliza o poder do Machine Learning para capturar os principais fatores de reconhecimento que são a distância entre seus olhos, a profundidade de suas órbitas oculares, a distância entre a 
