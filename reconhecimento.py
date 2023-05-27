@@ -30,7 +30,8 @@ class Reconhecimento:
         self.formulario = formulario
         self.timer = QTimer()
         self.timer.timeout.connect(self.threaFuncion)
-        self.api = "http://localhost:8080/reconhecimento"
+        # self.api = "http://localhost:8080/reconhecimento"
+        self.api = "https://web-production-9f8c8.up.railway.app/reconhecimento"
 
 
     # inicia a câmera

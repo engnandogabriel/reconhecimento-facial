@@ -13,8 +13,8 @@ class Registro:
         self.erroRegistro = []
         self.Alunos = []
         self.faces = Faces
-        # self.api = "https://web-production-9f8c8.up.railway.app/reconhecimento"
-        self.api = "http://localhost:8080/reconhecimento"
+        self.api = "https://web-production-9f8c8.up.railway.app/reconhecimento"
+        # self.api = "http://localhost:8080/reconhecimento"
 
     def confirmaPresenca(self, id, matricula):
 
