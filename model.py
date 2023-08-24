@@ -124,8 +124,8 @@ class Aluno:
 
 class DadosGerais:
     def __init__(self):
-        self.api = "https://web-production-9f8c8.up.railway.app/reconhecimento"
-        # self.api = "http://localhost:8080/reconhecimento"
+        # self.api = "https://web-production-9f8c8.up.railway.app/reconhecimento"
+        self.api = "http://localhost:8080/reconhecimento"
         self.requisicao = requests.get(self.api).json()
         self.nomes = []
         self.matriculas = []
